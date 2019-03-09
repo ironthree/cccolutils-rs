@@ -1,0 +1,28 @@
+[package]
+name = "cccolutils"
+description = "Kerberos5 Credential Cache Collection Utilities"
+license = "MIT OR Apache-2.0"
+
+version = "0.0.1"
+edition = "2018"
+
+authors = ["Fabio Valentini"]
+readme = "README.md"
+categories = ["authentication"]
+keywords = ["kerberos", "krb5", "authentication"]
+repository = "https://github.com/ironthree/cccolutils-rs"
+
+build = "build.rs"
+exclude = ["src/test.c"]
+
+
+[build-dependencies]
+cc = "^1.0.30"
+
+
+[dependencies]
+
+
+[profile.release]
+lto = true
+

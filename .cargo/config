@@ -1,0 +1,2 @@
+[build]
+rustflags = ["-Clink-args=-lkrb5 -lk5crypto -lcom_err"]
