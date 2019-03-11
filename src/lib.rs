@@ -19,7 +19,7 @@ extern "C" {
 /// It will return `Some(username)` if there is an authenticated user for the
 /// given realm, and `None` otherwise.
 ///
-/// ```ignore
+/// ```
 /// let username = cccolutils::get_username(String::from("FEDORAPROJECT.ORG"));
 /// ```
 pub fn get_username(realm: String) -> Option<String> {
@@ -45,7 +45,7 @@ pub fn get_username(realm: String) -> Option<String> {
 
 /// Checks if there is any authenticated user for any realm.
 ///
-/// ```ignore
+/// ```
 /// let authenticated = cccolutils::has_credentials();
 /// ```
 pub fn has_credentials() -> bool {
