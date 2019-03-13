@@ -20,24 +20,30 @@ extern "C" {
 /// given realm, and `None` otherwise.
 ///
 /// ```
-/// let username = cccolutils::get_username(String::from("FEDORAPROJECT.ORG"));
+/// let username = cccolutils::get_username_for_realm(String::from("FEDORAPROJECT.ORG")).unwrap();
 /// ```
-pub fn get_username(realm: String) -> Option<String> {
-    let realm = CString::new(realm).unwrap();
+pub fn get_username_for_realm(realm: String) -> Result<Option<String>, String> {
+    let realm = match CString::new(realm) {
+        Ok(realm) => realm,
+        Err(error) => { return Err(format!("Failed to encode realm as C-string: {:?}", error)); }
+    };
 
     unsafe {
         let username = get_username_for_realm_c(realm.as_ptr());
 
         if username.is_null() {
-            None
+            Ok(None)
         } else {
             let user_string = CStr::from_ptr(username);
-            let result = user_string.to_owned().into_string().unwrap();
+            let result = match user_string.to_owned().into_string() {
+                Ok(result) => result,
+                Err(error) => { return Err(format!("Failed to decode username C-string: {:?}", error)); }
+            };
 
             // this is necessary to prevent a memory leak (detected by leak sanitizer)
             free_username_c(username);
 
-            Some(result)
+            Ok(Some(result))
         }
     }
 }
@@ -61,19 +67,22 @@ mod tests {
     use std::env;
 
     #[test]
-    #[ignore]
     fn test_has_credentials() {
-        // ignore this result, since it can fail. but it should't crash.
-        assert_eq!(
-            has_credentials(),
-            true
-        );
+        // this function will return either true or false. but it should't crash, ever
+
+        if has_credentials() {
+            println!("Successfully checked for valid credentials.");
+        } else {
+            println!("Successfully checked for no valid credentials.");
+        }
     }
 
     #[test]
     fn test_get_username() {
-        // check if valid REALM and USERNAME were supplied via environment variables
-        let (realm, username) = match (env::var("REALM"), env::var("USERNAME")) {
+        // check if valid REALM and KUSER were supplied via environment variables,
+        // which means the test can check for meaningful results
+
+        let (realm, username) = match (env::var("REALM"), env::var("KUSER")) {
             (Ok(r), Ok(u)) => (r, u),
             (_, _) => {
                 println!("No realm and username specified.");
@@ -82,17 +91,22 @@ mod tests {
         };
 
         assert_eq!(
-            get_username(realm),
+            get_username_for_realm(realm).unwrap(),
             Some(username)
         );
+
+        println!("Successfully determined username.");
     }
 
     #[test]
     fn fail_get_username() {
         // nobody should have a kerberos ticket for example.com
+
         assert_eq!(
-            get_username(String::from("EXAMPLE.COM")),
+            get_username_for_realm(String::from("EXAMPLE.COM")).unwrap(),
             None
         );
+
+        println!("Successfully determined no username.");
     }
 }
