@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "cccolutils.c"
+#include "cccolutils.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -9,9 +9,9 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    bool authed = has_credentials_c();
+    bool authenticated = has_credentials_c();
 
-    if (!authed) {
+    if (!authenticated) {
         printf("No KRB5 authentication found. Exiting.\n");
         return EXIT_FAILURE;
     } else {

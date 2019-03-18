@@ -1,6 +1,7 @@
-#include <stdbool.h>
 #include <string.h>
 #include <krb5.h>
+
+#include "cccolutils.h"
 
 
 char *get_username_for_realm_c(char *realm) {
@@ -28,7 +29,7 @@ char *get_username_for_realm_c(char *realm) {
             continue;
         }
 
-        if (strcmp(principal->realm.data, realm)) {
+        if (strcmp(principal->realm.data, realm) != 0) {
             // Not the correct realm
             krb5_free_principal (kcontext, principal);
             krb5_cc_close(kcontext, cache);
@@ -90,11 +91,11 @@ bool has_credentials_c() {
 
         if (code) break;
 
-        krb5_creds creds;
-        while (krb5_cc_next_cred(kcontext, cache, &cache_cursor, &creds) == 0) {
-            if (!krb5_is_config_principal(kcontext, creds.server)) {
+        krb5_creds credentials;
+        while (krb5_cc_next_cred(kcontext, cache, &cache_cursor, &credentials) == 0) {
+            if (!krb5_is_config_principal(kcontext, credentials.server)) {
                 found = true;
-                krb5_free_cred_contents(kcontext, &creds);
+                krb5_free_cred_contents(kcontext, &credentials);
                 break;
             }
         }
