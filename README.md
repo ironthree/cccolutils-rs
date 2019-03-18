@@ -17,3 +17,6 @@ The available API is limited to the following functions:
 - `fn has_credentials() -> bool`: determine if there are any active
   authentication tickets for any realm
 
+The style of the C code is enforced with the uncrustify configuration in this
+directory.
+
