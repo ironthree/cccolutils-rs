@@ -12,8 +12,11 @@ categories = ["authentication"]
 keywords = ["kerberos", "krb5", "authentication"]
 repository = "https://github.com/ironthree/cccolutils-rs"
 
-build = "build.rs"
-exclude = ["src/test.c"]
+exclude = [
+    "CMakeLists.txt",
+    "uncrustify.cfg",
+    "src/test.c",
+]
 
 
 [build-dependencies]
