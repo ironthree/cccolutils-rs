@@ -5,6 +5,10 @@
 
 
 char *get_username_for_realm_c(char *realm) {
+    if (realm == NULL) {
+        return false;
+    }
+
     krb5_context kcontext  = NULL;
     if (krb5_init_context(&kcontext)) {
         return NULL;
@@ -60,8 +64,70 @@ char *get_username_for_realm_c(char *realm) {
 }
 
 
-void free_username_c(char *username) {
-    free(username);
+void free_char_array_c(char *char_array) {
+    if (char_array == NULL)
+        return;
+
+    free(char_array);
+}
+
+
+bool has_credentials_for_realm_c(char *realm) {
+    if (realm == NULL) {
+        return false;
+    }
+
+    krb5_context kcontext = NULL;
+    if (krb5_init_context(&kcontext)) {
+        return false;
+    }
+
+    krb5_cccol_cursor cursor = NULL;
+    if (krb5_cccol_cursor_new(kcontext, &cursor)) {
+        krb5_free_context(kcontext);
+        return false;
+    }
+
+    krb5_ccache cache = NULL;
+    bool found = false;
+
+    while (krb5_cccol_cursor_next(kcontext, cursor, &cache) == 0) {
+        if (cache == NULL) {
+            break;
+        }
+
+        krb5_cc_cursor cache_cursor = NULL;
+        krb5_error_code code = 0;
+
+        code = krb5_cc_start_seq_get(kcontext, cache, &cache_cursor);
+
+        if (code) break;
+
+        krb5_creds credentials;
+        while (krb5_cc_next_cred(kcontext, cache, &cache_cursor, &credentials) == 0) {
+            if (!krb5_is_config_principal(kcontext, credentials.server)) {
+                if (strcmp(credentials.server->realm.data, realm) != 0) {
+                    // Not the correct realm
+                    krb5_free_cred_contents(kcontext, &credentials);
+                    continue;
+                } else {
+                    krb5_free_cred_contents(kcontext, &credentials);
+                    found = true;
+                }
+            }
+
+            if (found) break;
+        }
+
+        krb5_cc_end_seq_get(kcontext, cache, &cache_cursor);
+        krb5_cc_close(kcontext, cache);
+
+        if (found) break;
+    }
+
+    krb5_cccol_cursor_free(kcontext, &cursor);
+    krb5_free_context(kcontext);
+    return found;
 }
 
 
