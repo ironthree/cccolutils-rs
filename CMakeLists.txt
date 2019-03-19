@@ -3,7 +3,7 @@ cmake_minimum_required(
 )
 
 project(
-        cccolutils-test
+        cccolutils-rs
 )
 
 find_package(

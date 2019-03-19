@@ -32,3 +32,8 @@ cc = "^1.0.30"
 [profile.release]
 lto = true
 
+
+[package.metadata.docs.rs]
+dependencies = [
+    "libkrb5-dev"
+]
