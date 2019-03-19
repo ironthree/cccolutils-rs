@@ -9,41 +9,64 @@ use std::ffi::CStr;
 
 extern "C" {
     fn get_username_for_realm_c(realm: *const c_char) -> *const c_char;
-    fn free_username_c(username: *const c_char);
+    fn free_char_array_c(char_array: *const c_char);
     fn has_credentials_c() -> i32;
+    fn has_credentials_for_realm_c(realm: *const c_char) -> i32;
+}
+
+
+/// This helper function attempts to convert a `String` to an `Ok(CString)`,
+/// and returns an `Err(String)` if something goes wrong.
+fn c_string_from_string(string: String) -> Result<CString, String> {
+    match CString::new(string) {
+        Ok(c_string) => Ok(c_string),
+        Err(error) => Err(format!("Failed to encode String as CString: {:?}", error))
+    }
+}
+
+
+/// This helper function attempts to convert a `*const c_char` to an `Ok(String)`,
+/// and returns an `Err(String)` if something goes wrong.
+fn string_from_char_ptr(char_array: *const c_char) -> Result<String, String> {
+    if char_array.is_null() {
+        return Err(String::from("Attempted to convert a NULL string value to a String."));
+    }
+
+    let c_string = unsafe { CStr::from_ptr(char_array) };
+
+    let string = c_string.to_owned().into_string();
+    unsafe { free_char_array_c(char_array) };
+
+    match string {
+        Ok(result) => Ok(result),
+        Err(error) => Err(format!("Failed to decode char array: {:?}", error))
+    }
 }
 
 
 /// Checks the name of the authenticated user for a given realm.
 ///
-/// It will return `Some(username)` if there is an authenticated user for the
-/// given realm, and `None` otherwise.
+/// It will return `Ok(Some(username))` if there is an authenticated user for the
+/// given realm, and `Ok(None)` otherwise.
+///
+/// `Err()` values are returned when string conversions fail.
 ///
 /// ```
-/// let username = cccolutils::get_username_for_realm(String::from("FEDORAPROJECT.ORG")).unwrap();
+/// let username = cccolutils::get_username_for_realm(
+///     String::from("FEDORAPROJECT.ORG")
+/// ).unwrap();
 /// ```
 pub fn get_username_for_realm(realm: String) -> Result<Option<String>, String> {
-    let realm = match CString::new(realm) {
-        Ok(realm) => realm,
-        Err(error) => { return Err(format!("Failed to encode realm as C-string: {:?}", error)); }
-    };
+    let realm = c_string_from_string(realm)?;
 
-    unsafe {
-        let username = get_username_for_realm_c(realm.as_ptr());
+    let username = unsafe { get_username_for_realm_c(realm.as_ptr()) };
 
-        if username.is_null() {
-            Ok(None)
-        } else {
-            let user_string = CStr::from_ptr(username);
-            let result = match user_string.to_owned().into_string() {
-                Ok(result) => result,
-                Err(error) => { return Err(format!("Failed to decode username C-string: {:?}", error)); }
-            };
-
-            // this is necessary to prevent a memory leak (detected by leak sanitizer)
-            free_username_c(username);
-
-            Ok(Some(result))
+    if username.is_null() {
+        Ok(None)
+    } else {
+        match string_from_char_ptr(username) {
+            Ok(result) => Ok(Some(result)),
+            Err(error) => Err(error)
         }
     }
 }
@@ -61,6 +84,25 @@ pub fn has_credentials() -> bool {
 }
 
 
+/// Checks if there is an authenticated user for the given realm.
+///
+/// It will return `Ok(true)` if there is an authenticated user,
+/// and `Ok(false)` otherwise.
+///
+/// `Err()` values are returned when string conversions fail.
+///
+/// ```
+/// let authenticated_for_realm = cccolutils::has_credentials_for_realm(
+///     String::from("FEDORAPROJECT.ORG")
+/// ).unwrap();
+/// ```
+pub fn has_credentials_for_realm(realm: String) -> Result<bool, String> {
+    let realm = c_string_from_string(realm)?;
+
+    Ok(unsafe { has_credentials_for_realm_c(realm.as_ptr()) == 1 })
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -75,6 +117,36 @@ mod tests {
         } else {
             println!("Successfully checked for no valid credentials.");
         }
+    }
+
+    #[test]
+    fn test_has_credentials_for_realm() {
+        let realm = match env::var("REALM") {
+            Ok(realm) => realm,
+            _ => {
+                println!("No realm specified.");
+                return;
+            }
+        };
+
+        assert_eq!(
+            has_credentials_for_realm(realm),
+            Ok(true)
+        );
+
+        println!("Successfully checked credentials.");
+    }
+
+    #[test]
+    fn fail_has_credentials_for_realm() {
+        // nobody should have a kerberos ticket for example.com
+
+        assert_eq!(
+            has_credentials_for_realm(String::from("EXAMPLE.COM")),
+            Ok(false)
+        );
+
+        println!("Successfully determined no authentication.");
     }
 
     #[test]
