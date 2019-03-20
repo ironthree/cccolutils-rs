@@ -1,9 +1,9 @@
 # Kerberos 5 Credentials Cache Collection Utilities
 
-![crates.io](https://img.shields.io/crates/v/cccolutils.svg)
-![crates.io](https://img.shields.io/crates/d/cccolutils.svg)
-![crates.io](https://img.shields.io/crates/l/cccolutils.svg)
-![docs.rs](https://docs.rs/cccolutils/badge.svg)
+[![crates.io](https://img.shields.io/crates/v/cccolutils.svg)](https://crates.io/crates/cccolutils/)
+[![crates.io](https://img.shields.io/crates/d/cccolutils.svg)](https://crates.io/crates/cccolutils/)
+[![crates.io](https://img.shields.io/crates/l/cccolutils.svg)](https://crates.io/crates/cccolutils/)
+[![docs.rs](https://docs.rs/cccolutils/badge.svg)](https://docs.rs/cccolutils/)
 
 This package is a rough rust port of the
 [`cccolutils` python package][cccolutils.py].
