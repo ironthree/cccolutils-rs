@@ -6,7 +6,7 @@
 
 char *get_username_for_realm_c(char *realm) {
     if (realm == NULL) {
-        return false;
+        return NULL;
     }
 
     krb5_context kcontext = NULL;

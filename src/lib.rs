@@ -1,10 +1,13 @@
 //! This crate contains convenience functions for checking valid kerberos credentials.
 //! It is a rough port of the [`cccolutils` python package](https://pagure.io/cccolutils).
 
+#![warn(missing_docs)]
+#![warn(missing_debug_implementations)]
+
 use std::os::raw::c_char;
 
-use std::ffi::CString;
 use std::ffi::CStr;
+use std::ffi::CString;
 
 
 extern "C" {
@@ -20,7 +23,7 @@ extern "C" {
 fn c_string_from_string(string: String) -> Result<CString, String> {
     match CString::new(string) {
         Ok(c_string) => Ok(c_string),
-        Err(error) => Err(format!("Failed to encode String as CString: {:?}", error))
+        Err(error) => Err(format!("Failed to encode String as CString: {:?}", error)),
     }
 }
 
@@ -39,7 +42,7 @@ fn string_from_char_ptr(char_array: *const c_char) -> Result<String, String> {
 
     match string {
         Ok(result) => Ok(result),
-        Err(error) => Err(format!("Failed to decode char array: {:?}", error))
+        Err(error) => Err(format!("Failed to decode char array: {:?}", error)),
     }
 }
 
@@ -52,9 +55,7 @@ fn string_from_char_ptr(char_array: *const c_char) -> Result<String, String> {
 /// `Err()` values are returned when string conversions fail.
 ///
 /// ```
-/// let username = cccolutils::get_username_for_realm(
-///     String::from("FEDORAPROJECT.ORG")
-/// ).unwrap();
+/// let username = cccolutils::get_username_for_realm(String::from("FEDORAPROJECT.ORG")).unwrap();
 /// ```
 pub fn get_username_for_realm(realm: String) -> Result<Option<String>, String> {
     let realm = c_string_from_string(realm)?;
@@ -66,7 +67,7 @@ pub fn get_username_for_realm(realm: String) -> Result<Option<String>, String> {
     } else {
         match string_from_char_ptr(username) {
             Ok(result) => Ok(Some(result)),
-            Err(error) => Err(error)
+            Err(error) => Err(error),
         }
     }
 }
@@ -78,9 +79,7 @@ pub fn get_username_for_realm(realm: String) -> Result<Option<String>, String> {
 /// let authenticated = cccolutils::has_credentials();
 /// ```
 pub fn has_credentials() -> bool {
-    unsafe {
-        has_credentials_c() == 1
-    }
+    unsafe { has_credentials_c() == 1 }
 }
 
 
@@ -92,9 +91,7 @@ pub fn has_credentials() -> bool {
 /// `Err()` values are returned when string conversions fail.
 ///
 /// ```
-/// let authenticated_for_realm = cccolutils::has_credentials_for_realm(
-///     String::from("FEDORAPROJECT.ORG")
-/// ).unwrap();
+/// let authenticated_for_realm = cccolutils::has_credentials_for_realm(String::from("FEDORAPROJECT.ORG")).unwrap();
 /// ```
 pub fn has_credentials_for_realm(realm: String) -> Result<bool, String> {
     let realm = c_string_from_string(realm)?;
@@ -126,13 +123,10 @@ mod tests {
             _ => {
                 println!("No realm specified.");
                 return;
-            }
+            },
         };
 
-        assert_eq!(
-            has_credentials_for_realm(realm),
-            Ok(true)
-        );
+        assert_eq!(has_credentials_for_realm(realm), Ok(true));
 
         println!("Successfully checked credentials.");
     }
@@ -141,10 +135,7 @@ mod tests {
     fn fail_has_credentials_for_realm() {
         // nobody should have a kerberos ticket for example.com
 
-        assert_eq!(
-            has_credentials_for_realm(String::from("EXAMPLE.COM")),
-            Ok(false)
-        );
+        assert_eq!(has_credentials_for_realm(String::from("EXAMPLE.COM")), Ok(false));
 
         println!("Successfully determined no authentication.");
     }
@@ -159,13 +150,10 @@ mod tests {
             (_, _) => {
                 println!("No realm and username specified.");
                 return;
-            }
+            },
         };
 
-        assert_eq!(
-            get_username_for_realm(realm).unwrap(),
-            Some(username)
-        );
+        assert_eq!(get_username_for_realm(realm).unwrap(), Some(username));
 
         println!("Successfully determined username.");
     }
@@ -174,10 +162,7 @@ mod tests {
     fn fail_get_username() {
         // nobody should have a kerberos ticket for example.com
 
-        assert_eq!(
-            get_username_for_realm(String::from("EXAMPLE.COM")).unwrap(),
-            None
-        );
+        assert_eq!(get_username_for_realm(String::from("EXAMPLE.COM")).unwrap(), None);
 
         println!("Successfully determined no username.");
     }
