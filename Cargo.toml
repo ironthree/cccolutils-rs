@@ -10,7 +10,7 @@ authors = ["Fabio Valentini <decathorpe@gmail.com>"]
 readme = "README.md"
 categories = ["authentication"]
 keywords = ["kerberos", "krb5", "authentication"]
-repository = "https://github.com/ironthree/cccolutils-rs"
+repository = "https://pagure.io/ironthree/cccolutils-rs"
 
 links = "krb5"
 build = "build.rs"
@@ -28,3 +28,4 @@ cc = "^1.0.48"
 
 [profile.release]
 lto = true
+
