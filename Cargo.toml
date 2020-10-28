@@ -10,7 +10,7 @@ authors = ["Fabio Valentini <decathorpe@gmail.com>"]
 readme = "README.md"
 categories = ["authentication"]
 keywords = ["kerberos", "krb5", "authentication"]
-repository = "https://pagure.io/ironthree/cccolutils-rs"
+repository = "https://github.com/ironthree/cccolutils-rs"
 
 links = "krb5"
 build = "build.rs"

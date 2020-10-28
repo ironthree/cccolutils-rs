@@ -1,7 +1,5 @@
-/target
-/cmake*
-/.idea
+/target/
+/cmake*/
+/.idea/
 
-**/*.rs.bk
-
-Cargo.lock
+/Cargo.lock
