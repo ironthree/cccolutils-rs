@@ -16,9 +16,11 @@ links = "krb5"
 build = "build.rs"
 
 exclude = [
-    "CMakeLists.txt",
-    "uncrustify.cfg",
-    "src/test.c",
+    "/.github/",
+    "/rustfmt.toml",
+    "/CMakeLists.txt",
+    "/uncrustify.cfg",
+    "/src/test.c",
 ]
 
 [build-dependencies]
