@@ -1,9 +1,11 @@
-# Kerberos 5 Credentials Cache Collection Utilities
+# Kerberos 5 Credentials Cache Collection Utilities (DEPRECATED)
 
 [![crates.io](https://img.shields.io/crates/v/cccolutils.svg)](https://crates.io/crates/cccolutils/)
 [![crates.io](https://img.shields.io/crates/d/cccolutils.svg)](https://crates.io/crates/cccolutils/)
 [![crates.io](https://img.shields.io/crates/l/cccolutils.svg)](https://crates.io/crates/cccolutils/)
 [![docs.rs](https://docs.rs/cccolutils/badge.svg)](https://docs.rs/cccolutils/)
+
+**WARNING**: This crate is no longer actively maintained.
 
 This package is a rough rust port of the
 [`cccolutils` python package][cccolutils.py].

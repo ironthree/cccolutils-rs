@@ -3,7 +3,7 @@ name = "cccolutils"
 description = "Kerberos5 Credential Cache Collection Utilities"
 license = "MIT OR Apache-2.0"
 
-version = "0.2.1"
+version = "0.2.2"
 edition = "2018"
 
 authors = ["Fabio Valentini <decathorpe@gmail.com>"]
@@ -31,3 +31,5 @@ cc = "^1.0.48"
 [profile.release]
 lto = true
 
+[badges]
+maintenance = { status = "deprecated" }
